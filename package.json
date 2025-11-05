@@ -1,0 +1,8 @@
+{
+  "name": "wix-claude-proxy",
+  "version": "1.0.0",
+  "description": "Proxy para Claude API",
+  "engines": {
+    "node": "20.x"
+  }
+}
