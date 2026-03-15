@@ -1,37 +1,33 @@
-// api/proxy.js - VERSÃO CORRIGIDA E TESTADA
+// api/proxy.js - Proxy para Claude API com suporte a Opus (timeout estendido)
+export const maxDuration = 300;
+
 export default async function handler(req, res) {
-    // Permitir CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
-    // OPTIONS para CORS
+
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
-    
-    // GET para teste
+
     if (req.method === 'GET') {
         return res.status(200).json({ 
             status: 'ok',
-            message: 'Proxy funcionando! Use POST.' 
+            message: 'Proxy funcionando! Use POST.',
+            maxDuration: 300
         });
     }
-    
-    // Processar POST
+
     if (req.method === 'POST') {
         try {
             const { apiKey, ...body } = req.body;
-            
+
             if (!apiKey || !apiKey.startsWith('sk-ant-')) {
                 return res.status(400).json({ 
-                    error: 'API Key inválida ou não fornecida' 
+                    error: 'API Key invalida ou nao fornecida' 
                 });
             }
-            
-            console.log('Chamando Claude API...');
-            
-            // Chamar API do Claude
+
             const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
                 method: 'POST',
                 headers: {
@@ -41,12 +37,11 @@ export default async function handler(req, res) {
                 },
                 body: JSON.stringify(body)
             });
-            
+
             const claudeData = await claudeResponse.json();
-            
-            // Retornar resposta
+
             return res.status(claudeResponse.status).json(claudeData);
-            
+
         } catch (error) {
             console.error('Erro no proxy:', error);
             return res.status(500).json({ 
@@ -55,6 +50,6 @@ export default async function handler(req, res) {
             });
         }
     }
-    
-    return res.status(405).json({ error: 'Método não permitido' });
+
+    return res.status(405).json({ error: 'Metodo nao permitido' });
 }
